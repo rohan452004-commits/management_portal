@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block breadcrumb %}Students{% endblock %}
+{% block content %}
+<div class="page-heading students-heading">
+  <div>
+    <p class="eyebrow">PEOPLE & ENROLLMENT</p>
+    <h1>Student directory</h1>
+    <p class="page-subtitle">Manage your student records and course enrollments.</p>
+  </div>
+  <a class="button button-primary" href="#add-student"><span class="button-plus">+</span> Add a student</a>
+</div>
+
+<section class="panel directory-panel">
+  <div class="directory-toolbar">
+    <div class="directory-title"><h2>All students <span class="result-count">{{ students|length }}</span></h2><p>A complete list of registered students</p></div>
+    <label class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+      <input id="studentSearch" type="search" placeholder="Search students..." aria-label="Search students">
+      <kbd>/</kbd>
+    </label>
+  </div>
+  {% if students %}
+  <div class="table-wrap">
+    <table class="data-table directory-table">
+      <thead><tr><th>STUDENT</th><th>COURSE</th><th>REGISTERED</th><th class="action-heading">ACTIONS</th></tr></thead>
+      <tbody id="studentTableBody">
+        {% for student in students %}
+        <tr class="student-row" data-search="{{ (student.name ~ ' ' ~ student.email ~ ' ' ~ student.course)|lower }}">
+          <td><div class="student-cell"><span class="avatar avatar-{{ loop.cycle('lilac', 'peach', 'mint', 'blue', 'rose') }}">{{ student.name[:1]|upper }}</span><div><strong>{{ student.name }}</strong><span>{{ student.email }}</span></div></div></td>
+          <td><span class="course-pill">{{ student.course }}</span></td>
+          <td class="muted-cell">{{ student.created_at[:10] if student.created_at else '—' }}</td>
+          <td class="action-cell">
+            <form class="delete-form" method="post" action="{{ url_for('delete_student', student_id=student.id) }}" data-student-name="{{ student.name }}">
+              <button type="submit" class="delete-button" aria-label="Delete {{ student.name|e }}" title="Delete student">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-.8 13H6.8L6 7m4 4v5m4-5v5"/></svg>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="no-results" id="noResults" hidden>No students match your search.</div>
+  </div>
+  {% else %}
+  <div class="empty-state directory-empty">
+    <span class="empty-illustration">✦</span>
+    <h3>No students yet</h3>
+    <p>Add your first student below. Their details will be saved to your student database.</p>
+  </div>
+  {% endif %}
+</section>
+
+<section class="panel add-panel" id="add-student">
+  <div class="panel-heading add-panel-heading">
+    <div><h2>Add a student</h2><p>Enter student details to create a new record.</p></div>
+    <span class="add-panel-icon">＋</span>
+  </div>
+  <form class="student-form" method="post" action="{{ url_for('add_student') }}">
+    <label class="form-field"><span>Full name <b>*</b></span><input name="name" type="text" placeholder="e.g. Alex Morgan" maxlength="120" autocomplete="name" required></label>
+    <label class="form-field"><span>Email address <b>*</b></span><input name="email" type="email" placeholder="alex@example.com" maxlength="254" autocomplete="email" required></label>
+    <label class="form-field"><span>Course or program <b>*</b></span><input name="course" type="text" placeholder="e.g. Computer Science" maxlength="120" required></label>
+    <div class="form-actions"><span class="required-note"><b>*</b> Required fields</span><button class="button button-primary" type="submit"><span class="button-plus">+</span> Save student</button></div>
+  </form>
+</section>
+{% endblock %}
